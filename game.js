@@ -5,6 +5,11 @@ const context = canvas.getContext("2d");
 context.fillStyle = "black";
 context.fillRect(0,0, canvas.width, canvas.height);
 
+window.addEventListener("resize", () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+
 const BALL_RADIUS = 10;
 const BLOCK_SIZE = 50;
 const BLOCK_SPEED = 3;
@@ -113,6 +118,23 @@ function draw() {
     let elapsedSeconds = Math.floor((Date.now() - startTime) / 10000);
     let score = elapsedSeconds * 5;
 
+    // update scores and display leaderboard
+updateScores(score);
+let scores = getScores();
+scores.sort((a, b) => b - a);
+context.fillStyle = "black";
+context.font = "30px Arial";
+context.fillText("High Score", canvas.width - 150, 150);
+for (let i = 0; i < Math.min(scores.length, 1); i++) {
+  context.fillText((i+1) + ". " + scores[i], canvas.width - 150, 200 + i * 50);
+}
+
+// draw score tracker
+context.fillStyle = "blue";
+context.font = "30px Arial";
+context.fillText("Score: " + score, canvas.width - 150, 90);
+
+
   // draw time tracker
   context.fillStyle = "black";
   //context.font = "30px Arial";
@@ -129,8 +151,20 @@ function draw() {
 }
 
 
+function getScores() {
+  let scores = localStorage.getItem("scores");
+  if (scores) {
+    return JSON.parse(scores);
+  } else {
+    return [];
+  }
+}
 
-
+function updateScores(score) {
+  let scores = getScores();
+  scores.push(score);
+  localStorage.setItem("scores", JSON.stringify(scores));
+}
 
 setInterval(generateBlock, BLOCK_SPAWN_INTERVAL);
 
